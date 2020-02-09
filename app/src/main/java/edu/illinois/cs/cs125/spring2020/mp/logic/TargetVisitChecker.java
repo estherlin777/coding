@@ -66,7 +66,9 @@ public class TargetVisitChecker {
                                               final int range) {
         // HINT: To find the distance in meters between two locations, use a provided helper function:
         // LatLngUtils.distance(oneLatitude, oneLongitude, otherLatitude, otherLongitude)
-        return false;
+        double target = LatLngUtils.distance(latitudes[targetIndex], longitudes[targetIndex], currentLatitude, currentLongitude);
+
+        return (target <= range);
     }
 
     /**
@@ -83,6 +85,11 @@ public class TargetVisitChecker {
      */
     public static boolean isTargetVisited(final int[] path, final int targetIndex) {
         // HINT: The user can capture targets in many different orders. Target #0 is not necessarily captured first.
+        for (int i = 0; i < path.length; i++) {
+            if (path[i] == targetIndex) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -108,6 +115,13 @@ public class TargetVisitChecker {
                                         final int range) {
         // HINT: Implement isTargetWithinRange and isTargetVisited (above) first.
         // Then you can call them in this function.
+        for (int i = 0; i < path.length; i++) {
+            if (isTargetWithinRange(latitudes,longitudes, path[i], currentLatitude, currentLongitude, range)) {
+                if (isTargetVisited(path, path[i])) {
+                    return path[i];
+                }
+            }
+        }
         return -1;
     }
 
