@@ -116,10 +116,8 @@ public class TargetVisitChecker {
         // HINT: Implement isTargetWithinRange and isTargetVisited (above) first.
         // Then you can call them in this function.
         for (int i = 0; i < path.length; i++) {
-            if (isTargetWithinRange(latitudes,longitudes, path[i], currentLatitude, currentLongitude, range)) {
-                if (isTargetVisited(path, path[i])) {
-                    return path[i];
-                }
+            if (isTargetWithinRange(latitudes,longitudes, i, currentLatitude, currentLongitude, range) && !isTargetVisited(path, i)) {
+                return i;
             }
         }
         return -1;
@@ -149,6 +147,7 @@ public class TargetVisitChecker {
      */
     public static boolean checkSnakeRule(final double[] latitudes, final double[] longitudes,
                                          final int[] path, final int tryVisit) {
+
         // HINT: To determine whether two lines cross, use a provided helper function:
         // LineCrossDetector.linesCross(oneStartLat, oneStartLng, oneEndLat, oneEndLng,
         //                              otherStartLat, otherStartLng, otherEndLat, otherEndLng)
@@ -174,6 +173,5 @@ public class TargetVisitChecker {
         return -1;
         // HINT: The return value of this function will be useful in GameActivity.
     }
-
 }
 
