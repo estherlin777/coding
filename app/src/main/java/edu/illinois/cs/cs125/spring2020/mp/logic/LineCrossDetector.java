@@ -32,6 +32,7 @@ public class LineCrossDetector {
      * @param secondEndLng the longitude of the end of that other line
      * @return whether the two lines cross
      */
+    @SuppressWarnings("checkstyle:WhitespaceAround")
     public static boolean linesCross(final double firstStartLat, final double firstStartLng,
                                      final double firstEndLat, final double firstEndLng,
                                      final double secondStartLat, final double secondStartLng,
@@ -41,15 +42,14 @@ public class LineCrossDetector {
                 || LatLngUtils.same(firstEndLat, firstEndLng, secondStartLat, secondStartLng)
                 || LatLngUtils.same(firstEndLat, firstEndLng, secondEndLat, secondEndLng)) {
             // The lines are just sharing endpoints, not crossing each other
-            return false; }
-
+            return false;
+        }
         // A line is vertical (purely north-south) if its longitude is constant
         boolean firstVertical = LatLngUtils.same(firstStartLng, firstEndLng);
         boolean secondVertical = LatLngUtils.same(secondStartLng, secondEndLng);
-        if (firstVertical && secondVertical){
-            // They're parallel vertical lines
+        if (firstVertical && secondVertical) {
             return false;
-        }else if (firstVertical) {
+        } else if (firstVertical) {
             return lineCrossesVertical(firstStartLat, firstEndLat, firstStartLng,
                     secondStartLat, secondStartLng, secondEndLat, secondEndLng);
         } else if (secondVertical) {
@@ -76,11 +76,12 @@ public class LineCrossDetector {
             // Endpoint of one line is in the middle of the other line
             return true;
         }
-        boolean onFirst = intersectionX > Math.min(firstStartLng, firstEndLng) && intersectionX < Math.max(firstStartLng, firstEndLng);
-        boolean onSecond = intersectionX > Math.min(secondStartLng, secondEndLng) && intersectionX < Math.max(secondStartLng, secondEndLng);
+        boolean onFirst = intersectionX > Math.min(firstStartLng, firstEndLng)
+                && intersectionX < Math.max(firstStartLng, firstEndLng);
+        boolean onSecond = intersectionX > Math.min(secondStartLng, secondEndLng)
+                && intersectionX < Math.max(secondStartLng, secondEndLng);
         return onFirst && onSecond;
     }
-
     /**
      * Determines if a non-vertical line crosses a vertical line.
      * @param verticalStartLat the latitude of one endpoint of the vertical line
