@@ -36,6 +36,7 @@ import java.util.List;
 
 import edu.illinois.cs.cs125.spring2020.mp.logic.DefaultTargets;
 import edu.illinois.cs.cs125.spring2020.mp.logic.LatLngUtils;
+import edu.illinois.cs.cs125.spring2020.mp.logic.TargetVisitChecker;
 
 /*
  * Welcome to the Machine Project app!
@@ -183,6 +184,10 @@ public final class GameActivity extends AppCompatActivity {
         map.getUiSettings().setIndoorLevelPickerEnabled(false);
         map.getUiSettings().setMapToolbarEnabled(false);
 
+        for (int i = 0; i < targetLats.length; i++) {
+            placeMarker(targetLats[i], targetLngs[i]);
+        }
+
         // Use the provided placeMarker function to add a marker at every target's location
         // HINT: onCreate initializes the relevant arrays (targetLats, targetLngs) for you
     }
@@ -196,6 +201,16 @@ public final class GameActivity extends AppCompatActivity {
      */
     @VisibleForTesting // Actually just visible for documentation - not called directly by test suites
     public void onLocationUpdate(final double latitude, final double longitude) {
+        int target = TargetVisitChecker.getVisitCandidate(targetLats, targetLngs, path, latitude,
+                longitude, PROXIMITY_THRESHOLD);
+        if (target != -1 && TargetVisitChecker.checkSnakeRule(targetLats, targetLngs, path, target)) {
+            int updateIndex = TargetVisitChecker.visitTarget(path, target);
+            changeMarkerColor(targetLats[target], targetLngs[target], CAPTURED_MARKER_HUE);
+            if (updateIndex > 0) {
+                addLine(targetLats[path[updateIndex - 1]], targetLngs[path[updateIndex - 1]],
+                        targetLats[path[updateIndex]], targetLngs[path[updateIndex]], PLAYER_COLOR);
+            }
+        }
         // This function is responsible for updating the game state and map according to the user's movements
 
         // HINT: To operate on the game state, use the three methods you implemented in TargetVisitChecker
