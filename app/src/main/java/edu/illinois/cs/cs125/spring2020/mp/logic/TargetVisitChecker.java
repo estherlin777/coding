@@ -147,7 +147,19 @@ public class TargetVisitChecker {
      */
     public static boolean checkSnakeRule(final double[] latitudes, final double[] longitudes,
                                          final int[] path, final int tryVisit) {
-
+        int lastIndex = 0;
+        for (int k = 0; k < path.length; k++) {
+            if(path[k] > -1) {
+                lastIndex += 1;
+            }
+        }
+        for (int i = lastIndex - 1; i > 0; i--) {
+            if (LineCrossDetector.linesCross(latitudes[path[i]], longitudes[path[i]], latitudes[path[i - 1]],
+                    longitudes[path[i - 1]], latitudes[path[lastIndex - 1]], longitudes[path[lastIndex - 1]],
+                    latitudes[tryVisit], longitudes[tryVisit]) == true) {
+                return false;
+            }
+        }
         // HINT: To determine whether two lines cross, use a provided helper function:
         // LineCrossDetector.linesCross(oneStartLat, oneStartLng, oneEndLat, oneEndLng,
         //                              otherStartLat, otherStartLng, otherEndLat, otherEndLng)
