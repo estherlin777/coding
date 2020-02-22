@@ -2,7 +2,7 @@ package edu.illinois.cs.cs125.spring2020.mp.logic;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-
+/**public class.*/
 public class AreaDivider {
     /**north.*/
     private double north;
@@ -14,9 +14,9 @@ public class AreaDivider {
     private double west;
     /**cell.*/
     private int cell;
-    /** x cell size*/
+    /** x cell size.*/
     private double xCell;
-    /** y cell size*/
+    /** y cell size.*/
     private double yCell;
     /** Creates an AreaDivider for an area.
      * @param setNorth - latitude of the north boundary
