@@ -1,7 +1,11 @@
 package edu.illinois.cs.cs125.spring2020.mp.logic;
 
+import android.graphics.Color;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.PolylineOptions;
+
 /**public class.*/
 public class AreaDivider {
     /**north.*/
@@ -133,6 +137,18 @@ public class AreaDivider {
      *advantage of our LatLngUtils.same function.
      *@param map - the Google map to draw on */
     public void renderGrid(final com.google.android.gms.maps.GoogleMap map) {
-        System.out.println("0");
+        final int lineThickness = 12;
+        double xWidth = (east - west) / getXCells();
+        double yWidth = (north - south) / getYCells();
+        for (int i = 0; i <= getYCells(); i++) {
+            map.addPolyline(new PolylineOptions()
+                    .add(new LatLng(south + yWidth * i, west), new LatLng(south + yWidth * i, east))
+                    .width(lineThickness).color(Color.BLACK));
+        }
+        for (int i = 0; i <= getXCells(); i++) {
+            map.addPolyline(new PolylineOptions()
+                    .add(new LatLng(south, west + xWidth * i), new LatLng(north, west + xWidth * i))
+                    .width(lineThickness).color(Color.BLACK));
+        }
     }
 }
