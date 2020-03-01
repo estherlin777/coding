@@ -28,12 +28,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.illinois.cs.cs125.spring2020.mp.logic.AreaDivider;
 import edu.illinois.cs.cs125.spring2020.mp.logic.DefaultTargets;
 import edu.illinois.cs.cs125.spring2020.mp.logic.LatLngUtils;
 import edu.illinois.cs.cs125.spring2020.mp.logic.TargetVisitChecker;
@@ -104,6 +106,30 @@ public final class GameActivity extends AppCompatActivity {
     /** The sequence of target indexes captured by the player (-1 if none). */
     private int[] path;
 
+    /** proximityThreshold.*/
+    private int proxy;
+
+    /** cellSize.*/
+    private int cellSize;
+
+    /** areaNorth.*/
+    private double areaNorth;
+
+    /** areaEast.*/
+    private double areaEast;
+
+    /** areaSouth.*/
+    private double areaSouth;
+
+    /**areaWest.*/
+    private double areaWest;
+
+    /** areaDivider object.*/
+    private boolean[][] area;
+
+    /**areaDivider instance.*/
+    private AreaDivider areaDivider;
+
     /**
      * Called by the Android system when the activity is to be set up.
      * <p>
@@ -119,6 +145,19 @@ public final class GameActivity extends AppCompatActivity {
         // Load the UI from a layout resource
         setContentView(R.layout.activity_game);
         Log.v(TAG, "Created");
+        Intent gameIntent = getIntent();
+        String mode = gameIntent.getStringExtra("mode");
+        if (mode.equals("target")) {
+            proxy = gameIntent.getIntExtra("proximityThreshold", 0);
+        } else if (mode.equals("area")) {
+            cellSize = gameIntent.getIntExtra("cellSize", 0);
+            areaNorth = gameIntent.getDoubleExtra("areaNorth", 0.0);
+            areaEast = gameIntent.getDoubleExtra("areaEast", 0.0);
+            areaSouth = gameIntent.getDoubleExtra("areaSouth", 0.0);
+            areaWest = gameIntent.getDoubleExtra("areaWest", 0.0);
+            areaDivider = new AreaDivider(areaNorth, areaEast, areaSouth, areaWest, cellSize);
+            area = new boolean[areaDivider.getXCells()][areaDivider.getYCells()];
+        }
 
         // Load the predefined targets
         targetLats = DefaultTargets.getLatitudes(this);
@@ -174,6 +213,11 @@ public final class GameActivity extends AppCompatActivity {
      */
     @SuppressWarnings("MissingPermission")
     private void setUpMap() {
+        Intent gameIntent = getIntent();
+        String mode = gameIntent.getStringExtra("mode");
+        if (mode.equals("area")) {
+            areaDivider.renderGrid(map);
+        }
         // Enable the My Location blue dot if possible
         if (hasLocationPermission) {
             Log.v(TAG, "setUpMap enabled My Location");
@@ -201,8 +245,10 @@ public final class GameActivity extends AppCompatActivity {
      */
     @VisibleForTesting // Actually just visible for documentation - not called directly by test suites
     public void onLocationUpdate(final double latitude, final double longitude) {
+        Intent gameIntent = getIntent();
+        proxy = gameIntent.getIntExtra("proximityThreshold", 0);
         int target = TargetVisitChecker.getVisitCandidate(targetLats, targetLngs, path, latitude,
-                longitude, PROXIMITY_THRESHOLD);
+                longitude, proxy);
         if (target != -1 && TargetVisitChecker.checkSnakeRule(targetLats, targetLngs, path, target)) {
             int updateIndex = TargetVisitChecker.visitTarget(path, target);
             changeMarkerColor(targetLats[target], targetLngs[target], CAPTURED_MARKER_HUE);
