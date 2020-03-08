@@ -7,6 +7,9 @@ import android.os.Bundle;
 public class LaunchActivity extends AppCompatActivity {
     /**overide.*/
     @Override
+    /**oncreate.
+     * @param savedInstanceState - describe
+     */
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
