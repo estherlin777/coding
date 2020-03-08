@@ -60,28 +60,32 @@ public class GameSummary {
         }
         return null;
     }
-    /**Determines whether this game is an invitation to the user.
+    /**Determines whether the user is currently involved in this game.
      * @param userEmail - the logged-in user's email
-     * @return whether the user is invited to this game.*/
+     * @return whether this game is ongoing for the user*/
     public boolean isOngoing(final String userEmail) {
         for (JsonElement p : players) {
             JsonObject player = (JsonObject) p;
-            if (player.get("email").getAsString() == userEmail) {
-                if (player.get("state").getAsInt() != GameStateID.ENDED) {
-                    return true;
+            if (player.get("email").getAsString().equals(userEmail)) {
+                if (info.get("state").getAsInt() != GameStateID.ENDED) {
+                    if (player.get("state").getAsInt() == PlayerStateID.ACCEPTED
+                            || player.get("state").getAsInt() == PlayerStateID.PLAYING) {
+                        return true;
+                    }
                 }
             }
         }
         return false;
     }
-    /**Determines whether the user is currently involved in this game.
+
+    /**Determines whether this game is an invitation to the user.
      * @param userEmail - the logged-in user's email
-     * @return whether this game is ongoing for the user*/
+     * @return whether the user is invited to this game.*/
     public boolean isInvitation(final String userEmail) {
         if (info.get("state").getAsInt() != GameStateID.ENDED) {
             for (JsonElement p : players) {
                 JsonObject player = (JsonObject) p;
-                if (player.get("email").getAsString() == userEmail) {
+                if (player.get("email").getAsString().equals(userEmail)) {
                     if (player.get("state").getAsInt() == PlayerStateID.INVITED) {
                         return true;
                     }
