@@ -6,4 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".LaunchActivity">
 
+    <LinearLayout
+        android:id="@+id/parentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Login here"
+            android:visibility="visible" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
