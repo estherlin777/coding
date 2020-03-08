@@ -74,7 +74,7 @@ public class GameSummary {
         }
         return false;
     }
-    /**Determines whether the user is currently involved in this game
+    /**Determines whether the user is currently involved in this game.
      * @param userEmail - the logged-in user's email
      * @return whether this game is ongoing for the user*/
     public boolean isInvitation(final String userEmail) {
