@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import edu.illinois.cs.cs125.spring2020.mp.R;
-
+/**game summary.*/
 public class GameSummary {
     /**JsonObject info.*/
     private JsonObject info;
