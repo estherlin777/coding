@@ -2,11 +2,14 @@ package edu.illinois.cs.cs125.spring2020.mp.logic;
 
 import android.content.Context;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class GameSummary {
     /**JsonObject info.*/
     private JsonObject info;
+    /**players.*/
+    private JsonArray players;
     /**Creates a game summary from JSON from the server.
      * @param infoFromServer - one object from the array in the /games response.
      * */
