@@ -53,9 +53,7 @@ public class GameSummary {
             JsonObject player = (JsonObject) p;
             if (player.get("email").getAsString().equals(userEmail)) {
                 String[] teamNames = context.getResources().getStringArray(R.array.team_choices);
-                for (int i = 0; i < teamNames.length; i++) {
-                    return teamNames[player.get("team").getAsInt()];
-                }
+                return teamNames[player.get("team").getAsInt()];
             }
         }
         return null;
