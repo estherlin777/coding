@@ -65,6 +65,9 @@ public final class MainActivity extends AppCompatActivity {
             }
         );
     }
+    /**post.
+     * @param endpoint - endpoint
+     * */
     public void post(final String endpoint) {
         WebApi.startRequest(this, WebApi.API_BASE + endpoint, Request.Method.POST, null, response -> {
             // response code handler similar to a GET request
@@ -73,6 +76,10 @@ public final class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
             });
     }
+    /**enter.
+     * @param endpoint - endpoint
+     * @param gameId - gameId
+     * */
     public void enter(final String endpoint, final String gameId) {
         post(endpoint);
         Intent main = new Intent(this, GameActivity.class);
