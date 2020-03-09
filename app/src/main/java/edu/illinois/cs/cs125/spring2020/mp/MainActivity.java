@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -29,15 +30,10 @@ public final class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        // The super.onCreate call is required for all activities
         super.onCreate(savedInstanceState);
-        // Set up the UI from the activity_main.xml layout resource
         setContentView(R.layout.activity_main);
-        // Now that setContentView has been called, findViewById can find views
-
         findViewById(R.id.createGame).setOnClickListener(unused -> startActivity(
                 new Intent(this, NewGameActivity.class)));
-
         findViewById(R.id.retryConnectButton).setOnClickListener(unused -> connect());
         connect();
     }
@@ -68,6 +64,19 @@ public final class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.connection_failed, Toast.LENGTH_LONG).show();
             }
         );
+    }
+    public void post(final String endpoint) {
+        WebApi.startRequest(this, WebApi.API_BASE + endpoint, Request.Method.POST, null, response -> {
+            // response code handler similar to a GET request
+            connect();
+        }, error -> {
+                Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+            });
+    }
+    public void enter(final String endpoint) {
+        post(endpoint);
+        Intent main = new Intent();
+        startActivity(main);
     }
 
     /**
@@ -107,6 +116,10 @@ public final class MainActivity extends AppCompatActivity {
                 // Get buttons specific to ongoing games
                 Button enter = chunk.findViewById(R.id.enterGame);
                 Button leave = chunk.findViewById(R.id.leaveGame);
+                enter.setOnClickListener(unused -> post("/games/" + gameId + "/enter"));
+                leave.setOnClickListener(unused -> post("/games/" + gameId + "/leave"));
+
+
                 // The Leave button should be gone if the user owns the game
                 if (gameOwner.equals(myEmail)) {
                     leave.setVisibility(View.GONE);
@@ -120,6 +133,10 @@ public final class MainActivity extends AppCompatActivity {
                 // Add it to the invitations list
                 invitationsLayout.addView(chunk);
                 // Get buttons specific to invitations?
+                Button accept = chunk.findViewById(R.id.acceptInvite);
+                Button decline = chunk.findViewById(R.id.declineInvite);
+                accept.setOnClickListener(unused -> enter("/games/" + gameId + "/accept"));
+                decline.setOnClickListener(unused -> post("/games/" + gameId + "/decline"));
             } else {
                 // Avoid the label-setting code below, since no chunk was created
                 continue;
