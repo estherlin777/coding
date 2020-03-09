@@ -73,9 +73,10 @@ public final class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
             });
     }
-    public void enter(final String endpoint) {
+    public void enter(final String endpoint, final String gameId) {
         post(endpoint);
-        Intent main = new Intent();
+        Intent main = new Intent(this, GameActivity.class);
+        main.putExtra("game", gameId);
         startActivity(main);
     }
 
@@ -116,7 +117,8 @@ public final class MainActivity extends AppCompatActivity {
                 // Get buttons specific to ongoing games
                 Button enter = chunk.findViewById(R.id.enterGame);
                 Button leave = chunk.findViewById(R.id.leaveGame);
-                enter.setOnClickListener(unused -> post("/games/" + gameId + "/enter"));
+                enter.setOnClickListener(unused ->
+                        enter("/games/" + gameId + "/enter", gameId));
                 leave.setOnClickListener(unused -> post("/games/" + gameId + "/leave"));
 
 
@@ -135,7 +137,7 @@ public final class MainActivity extends AppCompatActivity {
                 // Get buttons specific to invitations?
                 Button accept = chunk.findViewById(R.id.acceptInvite);
                 Button decline = chunk.findViewById(R.id.declineInvite);
-                accept.setOnClickListener(unused -> enter("/games/" + gameId + "/accept"));
+                accept.setOnClickListener(unused -> post("/games/" + gameId + "/accept"));
                 decline.setOnClickListener(unused -> post("/games/" + gameId + "/decline"));
             } else {
                 // Avoid the label-setting code below, since no chunk was created
