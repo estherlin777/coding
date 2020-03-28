@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 
 import java.util.List;
 
+/**public class.*/
 public class GameSetup {
     /**constructor for GameSetup.*/
     public GameSetup() {
