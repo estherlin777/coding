@@ -60,9 +60,22 @@ public final class NewGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState); // Required by Android
         setContentView(R.layout.activity_new_game); // Loads the UI, now findViewById can work
         setTitle(R.string.create_game);
-
+        LinearLayout areaSettings = findViewById(R.id.areaSettings);
+        LinearLayout targetSettings = findViewById(R.id.targetSettings);
         modeGroup = findViewById(R.id.gameModeGroup);
-
+        targetSettings.setVisibility((View.GONE));
+        areaSettings.setVisibility(View.GONE);
+        modeGroup.setOnCheckedChangeListener((unused, checkedId) -> {
+            // checkedId is the R.id constant of the currently checked RadioButton
+            // Your code here: make only the selected mode's settings group visible
+            if (checkedId == R.id.areaModeOption) {
+                targetSettings.setVisibility((View.GONE));
+                areaSettings.setVisibility(View.VISIBLE);
+            } else if (checkedId == R.id.targetModeOption) {
+                areaSettings.setVisibility(View.GONE);
+                targetSettings.setVisibility(View.VISIBLE);
+            }
+        });
         // Register button click handlers on the add-invitee and create-game buttons
         findViewById(R.id.addInvitee).setOnClickListener(unused -> addInvitee());
         findViewById(R.id.createGame).setOnClickListener(unused -> tryCreate());
