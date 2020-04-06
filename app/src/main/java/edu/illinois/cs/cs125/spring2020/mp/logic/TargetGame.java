@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.neovisionaries.ws.client.WebSocket;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import edu.illinois.cs.cs125.spring2020.mp.R;
 
 /**
  * Represents a target mode game. Keeps track of target claims and players' paths between targets they captured.
@@ -93,6 +96,18 @@ public final class TargetGame extends Game {
     public void locationUpdated(final LatLng location) {
         super.locationUpdated(location);
         // For each target within range of the player's current location, call tryClaimTarget
+        Target currentTarget = null;
+        for (Map.Entry<String, Target> targetEntry: targets.entrySet()) {
+            currentTarget = targetEntry.getValue();
+            String key = targetEntry.getKey();
+            LatLng targetLocation = new LatLng(currentTarget.getPosition().latitude,
+                    currentTarget.getPosition().longitude);
+            double distance = LatLngUtils.distance(targetLocation, location);
+            if (distance <= proximityThreshold) {
+                tryClaimTarget(key, currentTarget);
+            }
+        }
+
     }
 
     /**
@@ -123,7 +138,12 @@ public final class TargetGame extends Game {
             // You need to use that information to update the game state and map
             // First update the captured target's team
             // Then call a helper function to update the player's path and add any needed line to the map
-
+            for (Map.Entry<String, Target> entry : targets.entrySet()) {
+                if (entry.getKey() == targetId) {
+                    entry.getValue().setTeam(playerTeam);
+                }
+            }
+            extendPlayerPath(playerEmail, targetId, playerTeam);
             // Once that's done, inform the caller that we handled it
             return true;
         } else {
@@ -148,6 +168,47 @@ public final class TargetGame extends Game {
         // Now that we know the target can be captured, update its owning team
         // Use extendPlayerPath to update the game state and map
         // Send a targetVisit update to the server
+        if (target.getTeam() != TeamID.OBSERVER) {
+            return;
+        }
+        if (playerPaths.size() < 1 || playerPaths.get(getEmail()).size() < 1) {
+            target.setTeam((getMyTeam()));
+            extendPlayerPath(getEmail(), id, getMyTeam());
+            targetCaptureMessage(id);
+        }
+        int otherPlayerPrevPos = 0;
+        LatLng playerLastTarget = playerLastTarget();
+        for (Map.Entry<String, List<String>> entry : playerPaths.entrySet()) {
+            List<String> currentPlayerPath = new ArrayList<>();
+            currentPlayerPath = entry.getValue();
+            if (entry.getValue().size() < 1) {
+                continue;
+            }
+            otherPlayerPrevPos = entry.getValue().size();
+            for (int i = 0; i < otherPlayerPrevPos - 1; i++) {
+                if (LineCrossDetector.linesCross(location(entry.getValue().get(i)),
+                        location(entry.getValue().get(i + 1)), playerLastTarget, location(id))) {
+                    return;
+                }
+            }
+        }
+        target.setTeam(getMyTeam());
+        extendPlayerPath(getEmail(), id, getMyTeam());
+        targetCaptureMessage(id);
+    }
+    private LatLng location(final String targetId) {
+        return targets.get(targetId).getPosition();
+    }
+    private LatLng playerLastTarget() {
+        List<String> playersPath = playerPaths.get(getEmail());
+        String lastLocationId = playersPath.get(playersPath.size() - 1);
+        return location(lastLocationId);
+    }
+    private void targetCaptureMessage(final String targetId) {
+        JsonObject targetCaptured = new JsonObject();
+        targetCaptured.addProperty("type", "targetVisit");
+        targetCaptured.addProperty("targetId", targetId);
+        super.sendMessage(targetCaptured);
     }
 
     /**
@@ -194,6 +255,21 @@ public final class TargetGame extends Game {
         // The colors to use are provided by the team_colors integer array resource
         // (that's why Game instances need an Android Context object)
         // You may add the extra black border line if you like
+        final int lineThickness = 12;
+        int color = 0;
+        int[] colorArray = getContext().getResources().getIntArray(R.array.team_colors);
+        for (int i = 0; i < colorArray.length; i++) {
+            if (team == i) {
+                color = colorArray[i];
+                break;
+            }
+        }
+        PolylineOptions fill = new PolylineOptions()
+                .add(start, end).color(color).width(lineThickness).zIndex(1);
+        getMap().addPolyline(fill);
+        final int borderThickness = 3;
+        PolylineOptions border = new PolylineOptions().add(start, end).width(lineThickness + borderThickness);
+        getMap().addPolyline(border);
     }
 
     /**

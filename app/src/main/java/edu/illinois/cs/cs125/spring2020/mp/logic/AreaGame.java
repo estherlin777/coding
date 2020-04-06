@@ -4,8 +4,16 @@ import android.content.Context;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.neovisionaries.ws.client.WebSocket;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.illinois.cs.cs125.spring2020.mp.R;
 
 /**
  * Represents an area mode game. Keeps track of cells and the player's most recent capture.
@@ -18,7 +26,24 @@ public final class AreaGame extends Game {
 
     // You will probably want some instance variables to keep track of the game state
     // (similar to the area mode gameplay logic you previously wrote in GameActivity)
-
+    /**Map.*/
+    private Map<String, Cell> capturedCells = new HashMap<>();
+    /**emailID.*/
+    private String emailID;
+    /**google map.*/
+    private GoogleMap map;
+    /**areaNorth.*/
+    private double areaNorth;
+    /**areaEast.*/
+    private double areaEast;
+    /**areaSouth.*/
+    private double areaSouth;
+    /**areaWest.*/
+    private double areaWest;
+    /**cellSize.*/
+    private int cellSize;
+    /**area divider.*/
+    private AreaDivider divider;
     /**
      * Creates a game in area mode.
      * <p>
@@ -33,6 +58,85 @@ public final class AreaGame extends Game {
     public AreaGame(final String email, final GoogleMap map, final WebSocket webSocket,
                     final JsonObject fullState, final Context context) {
         super(email, map, webSocket, fullState, context);
+        this.map = map;
+        emailID = email;
+        areaNorth = fullState.get("areaNorth").getAsDouble();
+        areaEast = fullState.get("areaEast").getAsDouble();
+        areaSouth = fullState.get("areaSouth").getAsDouble();
+        areaWest = fullState.get("areaWest").getAsDouble();
+        cellSize = fullState.get("cellSize").getAsInt();
+        divider = new AreaDivider(areaNorth, areaEast, areaSouth, areaWest, cellSize);
+        divider.renderGrid(map);
+        for (JsonElement cell : fullState.getAsJsonArray("cells")) {
+            JsonObject cellObject = cell.getAsJsonObject();
+            Cell currentCell = new Cell(map, cellObject.get("x").getAsInt(), cellObject.get("y").getAsInt(),
+                    cellObject.get("email").getAsString(), cellObject.get("team").getAsInt());
+            capturedCells.put(email, currentCell);
+            polygonAdd(map, currentCell);
+        }
+    }
+
+    /** Create a private cell class.*/
+    private class Cell {
+        /**x.*/
+        private int x;
+        /**y.*/
+        private int y;
+        /**email.*/
+        private String email;
+        /**teamId.*/
+        private int teamId;
+        /**map.*/
+        private GoogleMap map;
+
+        /**contructor.
+         * @param setMap setMap.
+         * @param setX set x
+         * @param setY set y
+         * @param setEmail set email
+         * @param setId setId
+         */
+        Cell(final GoogleMap setMap, final int setX, final int setY, final String setEmail, final int setId) {
+            x = setX;
+            y = setY;
+            email = setEmail;
+            teamId = setId;
+            map = setMap;
+        }
+        public int getX() {
+            return x;
+        }
+        public int getY() {
+            return y;
+        }
+        public String getCellEmail() {
+            return email;
+        }
+        public int getCellTeamId() {
+            return teamId;
+        }
+    }
+
+    /** polygon add.
+     * @param setMap set map
+     * @param currentCell current cell
+     */
+    private void polygonAdd(final GoogleMap setMap, final Cell currentCell) {
+        PolygonOptions polygon = new PolygonOptions();
+        LatLngBounds cellBounds = divider.getCellBounds(currentCell.getX(), currentCell.getY());
+        LatLng northWest = new LatLng(cellBounds.northeast.latitude, cellBounds.southwest.longitude);
+        LatLng southEast = new LatLng(cellBounds.southwest.latitude, cellBounds.northeast.longitude);
+        polygon.add(cellBounds.northeast, northWest, cellBounds.southwest, southEast);
+        if (currentCell.getCellTeamId() == TeamID.TEAM_BLUE) {
+            polygon.fillColor(getContext().getColor(R.color.blue));
+        } else if (currentCell.getCellTeamId() == TeamID.TEAM_RED) {
+            polygon.fillColor(getContext().getColor(R.color.red));
+        } else if (currentCell.getCellTeamId() == TeamID.TEAM_GREEN) {
+            polygon.fillColor(getContext().getColor(R.color.green));
+        } else if (currentCell.getCellTeamId() == TeamID.TEAM_YELLOW) {
+            polygon.fillColor(getContext().getColor(R.color.yellow));
+        }
+        setMap.addPolygon(polygon);
     }
 
     /**
@@ -45,9 +149,7 @@ public final class AreaGame extends Game {
      * @param location the player's most recently known location
      */
     @Override
-    public void locationUpdated(final LatLng location) {
-
-    }
+    public void locationUpdated(final LatLng location) { }
 
     /**
      * Processes an update from the server.
