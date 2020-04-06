@@ -37,7 +37,7 @@ public final class TargetGame extends Game {
      * and populates the map accordingly.
      * @param email the player's email
      * @param map the Google Maps control to render to
-     * @param webSocket the websocket to send updates to
+     * @param webSocket the webSocket to send updates to
      * @param fullState the "full" update from the server
      * @param context the Android UI context
      */
@@ -96,7 +96,7 @@ public final class TargetGame extends Game {
     public void locationUpdated(final LatLng location) {
         super.locationUpdated(location);
         // For each target within range of the player's current location, call tryClaimTarget
-        Target currentTarget = null;
+        Target currentTarget;
         for (Map.Entry<String, Target> targetEntry: targets.entrySet()) {
             currentTarget = targetEntry.getValue();
             String key = targetEntry.getKey();
@@ -175,6 +175,7 @@ public final class TargetGame extends Game {
             target.setTeam((getMyTeam()));
             extendPlayerPath(getEmail(), id, getMyTeam());
             targetCaptureMessage(id);
+            return;
         }
         int otherPlayerPrevPos = 0;
         LatLng playerLastTarget = playerLastTarget();
@@ -196,14 +197,27 @@ public final class TargetGame extends Game {
         extendPlayerPath(getEmail(), id, getMyTeam());
         targetCaptureMessage(id);
     }
+
+    /**LatLng location.
+     * @param targetId target ID
+     * @return LatLng
+     */
     private LatLng location(final String targetId) {
         return targets.get(targetId).getPosition();
     }
+
+    /**LatLng player last target.
+     * @return LatLng
+     */
     private LatLng playerLastTarget() {
         List<String> playersPath = playerPaths.get(getEmail());
         String lastLocationId = playersPath.get(playersPath.size() - 1);
         return location(lastLocationId);
     }
+
+    /**target Capture Message.
+     * @param targetId targetID
+     */
     private void targetCaptureMessage(final String targetId) {
         JsonObject targetCaptured = new JsonObject();
         targetCaptured.addProperty("type", "targetVisit");

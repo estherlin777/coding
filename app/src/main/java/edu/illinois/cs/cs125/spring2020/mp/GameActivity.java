@@ -391,5 +391,4 @@ public final class GameActivity extends AppCompatActivity {
             scoresLabel.setText(TextUtils.join(", ", teamScores.toArray()));
         }
     }
-
 }

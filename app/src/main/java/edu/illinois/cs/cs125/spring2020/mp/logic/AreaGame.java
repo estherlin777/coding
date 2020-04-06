@@ -50,15 +50,15 @@ public final class AreaGame extends Game {
      * Loads the current game state from JSON into instance variables and populates the map
      * to show existing cell captures.
      * @param email the user's email
-     * @param map the Google Maps control to render to
+     * @param setMap the Google Maps control to render to
      * @param webSocket the websocket to send updates to
      * @param fullState the "full" update from the server
      * @param context the Android UI context
      */
-    public AreaGame(final String email, final GoogleMap map, final WebSocket webSocket,
+    public AreaGame(final String email, final GoogleMap setMap, final WebSocket webSocket,
                     final JsonObject fullState, final Context context) {
-        super(email, map, webSocket, fullState, context);
-        this.map = map;
+        super(email, setMap, webSocket, fullState, context);
+        map = setMap;
         emailID = email;
         areaNorth = fullState.get("areaNorth").getAsDouble();
         areaEast = fullState.get("areaEast").getAsDouble();
@@ -103,15 +103,27 @@ public final class AreaGame extends Game {
             teamId = setId;
             map = setMap;
         }
+        /**get x.
+         * @return int
+         * */
         public int getX() {
             return x;
         }
+        /**get y.
+         * @return int
+         * */
         public int getY() {
             return y;
         }
+        /**get cell email.
+         * @return String
+         * */
         public String getCellEmail() {
             return email;
         }
+        /**get cell team ID.
+         * @return int teamid
+         * */
         public int getCellTeamId() {
             return teamId;
         }
@@ -120,6 +132,7 @@ public final class AreaGame extends Game {
     /** polygon add.
      * @param setMap set map
      * @param currentCell current cell
+     * @return
      */
     private void polygonAdd(final GoogleMap setMap, final Cell currentCell) {
         PolygonOptions polygon = new PolygonOptions();
